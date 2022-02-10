@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class UserContoller {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user){     // @RequestBodyform 으로 json 등을 받기 위해 선언
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user){     // @RequestBodyform 으로 json 등을 받기 위해 선언
         User savedUser = service.save(user);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest() // URI로 반환하기 위하여 생성
                 .path("/{id}")                                          // path에 /{id} 값을 추가
@@ -39,5 +40,14 @@ public class UserContoller {
                 .toUri();                                               // URI로 변환
 
         return ResponseEntity.created(location).build() ;
+    }
+
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable int id){
+        User user = service.deleteById(id);
+
+        if(user == null){
+            throw new UserNotFoundException(String.format("ID[%s] not found", id));
+        }
     }
 }
