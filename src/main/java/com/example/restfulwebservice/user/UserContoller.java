@@ -1,5 +1,7 @@
 package com.example.restfulwebservice.user;
 
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -7,6 +9,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 public class UserContoller {
@@ -22,13 +27,19 @@ public class UserContoller {
     }
 
     @GetMapping("/users/{id}")
-    public User retrieveUser(@PathVariable int id){
+    public Resource<User> retrieveUser(@PathVariable int id){
         User user = service.findOne(id);
 
         if (user == null){
             throw new UserNotFoundException(String.format("ID[%s] not found", id));
         }
-        return user;
+
+        //HATEOAS
+        Resource<User> resource = new Resource<>(user);
+        ControllerLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllUsers());    //본 클래스의 "retrieveAllUsers()" uri를 가져옴
+        resource.add(linkTo.withRel("all-users"));  // "all-users"라는 문구를 통하여 제공
+
+        return resource;
     }
 
     @PostMapping("/users")
