@@ -8,9 +8,14 @@ logging:
 spring:
   messages:
     basename: messages
+  security:
+    user:
+      name: noh_bj
+      password: 6262
 
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+
